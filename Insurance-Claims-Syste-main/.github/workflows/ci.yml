@@ -1,9 +1,11 @@
 name: CI/CD Pipeline
-
 on:
   push:
-    branches: [ main ]
-
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 jobs:
   contract:
     name: Build Rust Contract
@@ -18,7 +20,6 @@ jobs:
       - name: Build contract
         working-directory: ./contract
         run: cargo build --target wasm32-unknown-unknown --release
-
   client:
     name: Build Frontend
     runs-on: ubuntu-latest
