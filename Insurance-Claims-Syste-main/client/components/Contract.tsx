@@ -228,7 +228,7 @@ function ClaimCard({
           <span className="font-mono text-xs text-white/40">Claim</span>
           <span className="font-mono text-sm font-semibold text-white/70">#{claimId}</span>
         </div>
-        <Badge variant={statusCfg.variant}>
+        <Badge variant={statusCfg.variant as "default" | "success" | "warning" | "info"}>
           <span className={cn("h-1.5 w-1.5 rounded-full", statusCfg.dot)} />
           {claim.status}
         </Badge>
