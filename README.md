@@ -6,7 +6,12 @@ UI Screenshot :
 
 CI/CD pipeline badge : <img width="1862" height="630" alt="image" src="https://github.com/user-attachments/assets/cad7c3b9-a072-435a-b7f2-a6538275aee5" />
 
+
 Live Demo Link : https://insurance-claims-syste-git-main-nishant-kumar-s-projects16.vercel.app
+
+
+ mobile responsive view : <img width="400" height="1568" alt="image" src="https://github.com/user-attachments/assets/4c8a71e4-9278-4eca-adb8-85a83968b3da" />
+
 
 
 
