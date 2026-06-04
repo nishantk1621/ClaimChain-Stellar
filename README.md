@@ -4,7 +4,7 @@ contract address :
 UI Screenshot :
 <img width="1254" height="708" alt="image" src="https://github.com/user-attachments/assets/41b694ff-c54b-4959-80d6-74d6027368b7" />
 
-CI/CD pipeline running : <img width="1862" height="630" alt="image" src="https://github.com/user-attachments/assets/cad7c3b9-a072-435a-b7f2-a6538275aee5" />
+CI/CD pipeline badge : <img width="1862" height="630" alt="image" src="https://github.com/user-attachments/assets/cad7c3b9-a072-435a-b7f2-a6538275aee5" />
 
 
 
