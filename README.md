@@ -11,6 +11,8 @@ Live Demo Link : https://insurance-claims-syste-git-main-nishant-kumar-s-project
 
 
  mobile responsive view : 
+
+ 
  <img width="400" height="1568" alt="image" src="https://github.com/user-attachments/assets/4c8a71e4-9278-4eca-adb8-85a83968b3da" />
 
 
