@@ -4,6 +4,8 @@ contract address :
 UI Screenshot :
 <img width="1254" height="708" alt="image" src="https://github.com/user-attachments/assets/41b694ff-c54b-4959-80d6-74d6027368b7" />
 
+CI/CD pipeline running :
+
 
 
 # 🛡️ ClaimChain — Decentralized Insurance Claims System
