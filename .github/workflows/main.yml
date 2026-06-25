@@ -22,6 +22,9 @@ jobs:
       - name: Run tests
         working-directory: ./contract
         run: cargo test
+      - name: Format check
+        working-directory: ./contract
+        run: cargo fmt --all -- --check
       - name: Run clippy lint
         working-directory: ./contract
         run: cargo clippy --all-targets -- -D warnings
