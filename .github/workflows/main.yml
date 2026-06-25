@@ -57,7 +57,7 @@ jobs:
       - name: Install Vercel CLI
         run: npm install -g vercel
       - name: Deploy to Vercel
-        run: vercel --prod --yes --cwd ./client --token=${{ secrets.VERCEL_TOKEN }} --scope=nishant-kumar-s-projects16
+        run: vercel --prod --yes --token=${{ secrets.VERCEL_TOKEN }} --scope=nishant-kumar-s-projects16
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
