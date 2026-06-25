@@ -145,3 +145,18 @@ npx serve .
 - Anyone can reclaim stake  
 - Economic incentives replace moderation  
 - Time-based rules enforced by smart contract
+
+
+---
+
+## 👥 User Feedback
+
+We are onboarding testnet users to improve ClaimChain!
+
+👉 **Fill out our feedback form:** [ClaimChain User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSc3kZlOxoRcCHYj-njzyPynmGXaL3dFjX2ytfSwXKXQkngW1w/viewform?usp=publish-editor)
+
+### How to test ClaimChain:
+1. Visit [insurance-claims-syste.vercel.app](https://insurance-claims-syste.vercel.app)
+2. Connect your Stellar testnet wallet
+3. File a claim or vote on existing claims
+4. Fill out the feedback form above
