@@ -170,7 +170,7 @@ function Input({ label, ...props }: { label: string } & React.InputHTMLAttribute
   );
 }
 
-function Textarea({ label, ...props }: { label: string } & React.TextareaAttrib­uteHTMLAttributes<HTMLTextAreaElement>) {
+function Textarea({ label, ...props }: { label: string } & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <div className="space-y-2">
       <label className="block text-[11px] font-medium uppercase tracking-wider text-white/30">{label}</label>
