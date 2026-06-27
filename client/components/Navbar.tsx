@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { NETWORK } from "@/hooks/contract";
 import { Badge } from "@/components/ui/badge";
+import { getAddress, isConnected } from "@stellar/freighter-api";
 
 function WalletIcon({ size = 16 }: { size?: number }) {
   return (
@@ -47,13 +48,7 @@ interface NavbarProps {
   isConnecting: boolean;
 }
 
-
-export default function Navbar({
-  walletAddress,
-  onConnect,
-  onDisconnect,
-  isConnecting,
-}: NavbarProps) {
+export default function Navbar({ walletAddress, onConnect, onDisconnect, isConnecting }: NavbarProps) {
   const [copied, setCopied] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
@@ -81,50 +76,43 @@ export default function Navbar({
   }, [walletAddress]);
 
   const handleWalletSelect = async (walletId: string) => {
-  try {
-    setConnecting(true);
-    setShowWalletModal(false);
-    if (walletId === "freighter") {
-      const freighter = (window as any).freighter;
-      if (!freighter) {
-        window.open("https://freighter.app", "_blank");
-        return;
+    try {
+      setConnecting(true);
+      setShowWalletModal(false);
+      if (walletId === "freighter") {
+        const connected = await isConnected();
+        if (!connected.isConnected) {
+          window.open("https://freighter.app", "_blank");
+          return;
+        }
+        const result = await getAddress();
+        onConnect(result.address);
+      } else if (walletId === "albedo") {
+        const albedo = await import("@albedo-link/intent");
+        const result = await albedo.default.publicKey({ token: "claimchain" });
+        onConnect(result.pubkey);
+      } else {
+        alert(`Please install ${walletId} wallet extension`);
       }
-      const { address } = await freighter.getAddress();
-      onConnect(address);
-    } else if (walletId === "albedo") {
-      const albedo = await import("@albedo-link/intent");
-      const result = await albedo.default.publicKey({ token: "claimchain" });
-      onConnect(result.pubkey);
-    } else {
-      alert(`Please install ${walletId} wallet extension`);
+    } catch (err) {
+      console.error("Wallet connection failed:", err);
+    } finally {
+      setConnecting(false);
     }
-  } catch (err) {
-    console.error("Wallet connection failed:", err);
-  } finally {
-    setConnecting(false);
-  }
-};
+  };
 
   const truncate = (addr: string) => `${addr.slice(0, 4)}...${addr.slice(-4)}`;
 
   const walletOptions = [
-  { id: "freighter", name: "Freighter", desc: "Browser extension" },
-  { id: "xbull", name: "xBull", desc: "Extension / WalletConnect" },
-  { id: "albedo", name: "Albedo", desc: "Link-based wallet" },
-];
+    { id: "freighter", name: "Freighter", desc: "Browser extension" },
+    { id: "xbull", name: "xBull", desc: "Extension / WalletConnect" },
+    { id: "albedo", name: "Albedo", desc: "Link-based wallet" },
+  ];
 
   return (
     <>
-      <nav
-        className={`sticky top-0 z-50 w-full border-b transition-all duration-300 animate-fade-in-down ${
-          scrolled
-            ? "border-white/[0.08] bg-[#050510]/90 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
-            : "border-white/[0.04] bg-transparent backdrop-blur-sm"
-        }`}
-      >
+      <nav className={`sticky top-0 z-50 w-full border-b transition-all duration-300 animate-fade-in-down ${scrolled ? "border-white/[0.08] bg-[#050510]/90 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]" : "border-white/[0.04] bg-transparent backdrop-blur-sm"}`}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#7c6cf0] to-[#4fc3f7] shadow-[0_0_20px_rgba(124,108,240,0.3)]">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -141,7 +129,6 @@ export default function Navbar({
             </div>
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-3">
             <Badge variant="success">
               <span className="h-1.5 w-1.5 rounded-full bg-[#34d399] animate-pulse" />
@@ -150,37 +137,27 @@ export default function Navbar({
 
             {walletAddress ? (
               <div className="relative">
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowDropdown(!showDropdown); }}
-                  className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-sm transition-all hover:border-white/[0.15] hover:bg-white/[0.06]"
-                >
+                <button onClick={(e) => { e.stopPropagation(); setShowDropdown(!showDropdown); }} className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-sm transition-all hover:border-white/[0.15] hover:bg-white/[0.06]">
                   <div className="h-6 w-6 rounded-full bg-gradient-to-br from-[#7c6cf0] to-[#4fc3f7] p-[1.5px]">
-                    <div className="flex h-full w-full items-center justify-center rounded-full bg-[#0a0a1a] text-[8px] font-bold text-white/80">
-                      {walletAddress.slice(0, 2)}
-                    </div>
+                    <div className="flex h-full w-full items-center justify-center rounded-full bg-[#0a0a1a] text-[8px] font-bold text-white/80">{walletAddress.slice(0, 2)}</div>
                   </div>
                   <span className="font-mono text-xs text-white/70">{truncate(walletAddress)}</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                    className={`text-white/30 transition-transform duration-200 ${showDropdown ? "rotate-180" : ""}`}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-white/30 transition-transform duration-200 ${showDropdown ? "rotate-180" : ""}`}>
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </button>
-
                 {showDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-xl border border-white/[0.08] bg-[#0c0c1d]/95 backdrop-blur-2xl shadow-2xl animate-fade-in-up"
-                    onClick={(e) => e.stopPropagation()}>
+                  <div className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-xl border border-white/[0.08] bg-[#0c0c1d]/95 backdrop-blur-2xl shadow-2xl animate-fade-in-up" onClick={(e) => e.stopPropagation()}>
                     <div className="p-3 border-b border-white/[0.06]">
                       <p className="text-[10px] uppercase tracking-wider text-white/25 mb-2">Connected Wallet</p>
                       <p className="font-mono text-xs text-white/60 break-all leading-relaxed">{walletAddress}</p>
                     </div>
                     <div className="p-1.5">
-                      <button onClick={() => { handleCopy(); setShowDropdown(false); }}
-                        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/[0.06] hover:text-white/90 transition-colors">
+                      <button onClick={() => { handleCopy(); setShowDropdown(false); }} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/[0.06] hover:text-white/90 transition-colors">
                         {copied ? <CheckSmallIcon /> : <CopyIcon />}
                         {copied ? "Copied!" : "Copy Address"}
                       </button>
-                      <button onClick={() => { onDisconnect(); setShowDropdown(false); }}
-                        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[#f87171]/70 hover:bg-[#f87171]/[0.08] hover:text-[#f87171] transition-colors">
+                      <button onClick={() => { onDisconnect(); setShowDropdown(false); }} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[#f87171]/70 hover:bg-[#f87171]/[0.08] hover:text-[#f87171] transition-colors">
                         <PowerIcon />
                         Disconnect
                       </button>
@@ -189,24 +166,12 @@ export default function Navbar({
                 )}
               </div>
             ) : (
-              <button
-                onClick={() => setShowWalletModal(true)}
-                disabled={connecting || isConnecting}
-                className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#7c6cf0] to-[#5b8cf0] p-[1px] transition-all hover:shadow-[0_0_25px_rgba(124,108,240,0.25)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button onClick={() => setShowWalletModal(true)} disabled={connecting || isConnecting} className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#7c6cf0] to-[#5b8cf0] p-[1px] transition-all hover:shadow-[0_0_25px_rgba(124,108,240,0.25)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
                 <div className="flex items-center gap-2 rounded-[11px] bg-[#0c0c1d]/90 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
                   {connecting || isConnecting ? (
-                    <>
-                      <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                      </svg>
-                      Connecting...
-                    </>
+                    <><svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>Connecting...</>
                   ) : (
-                    <>
-                      <WalletIcon size={14} />
-                      Connect Wallet
-                    </>
+                    <><WalletIcon size={14} />Connect Wallet</>
                   )}
                 </div>
               </button>
@@ -215,23 +180,16 @@ export default function Navbar({
         </div>
       </nav>
 
-      {/* Wallet Selection Modal */}
       {showWalletModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
-          onClick={() => setShowWalletModal(false)}>
-          <div className="w-80 rounded-2xl border border-white/[0.08] bg-[#0c0c1d] shadow-2xl"
-            onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowWalletModal(false)}>
+          <div className="w-80 rounded-2xl border border-white/[0.08] bg-[#0c0c1d] shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
               <h2 className="text-base font-semibold text-white">Connect a Wallet</h2>
               <button onClick={() => setShowWalletModal(false)} className="text-white/40 hover:text-white/80 transition-colors">✕</button>
             </div>
             <div className="p-3 space-y-1">
               {walletOptions.map((wallet) => (
-                <button
-                  key={wallet.id}
-                  onClick={() => handleWalletSelect(wallet.id)}
-                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 hover:bg-white/[0.06] transition-colors text-left"
-                >
+                <button key={wallet.id} onClick={() => handleWalletSelect(wallet.id)} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 hover:bg-white/[0.06] transition-colors text-left">
                   <div className="h-9 w-9 rounded-xl bg-white/[0.06] flex items-center justify-center">
                     <WalletIcon size={18} />
                   </div>
