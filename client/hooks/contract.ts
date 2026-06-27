@@ -174,7 +174,7 @@ export async function readContract(
   caller?: string
 ) {
   const account =
-    caller || Keypair.random().publicKey();
+    caller || "GDWO4KXFTNDYH7PSCOXGBNNZVB4F65JIEZKYXHOHX7KLUPE5DIFVSAOD"
   const sim = await callContract(method, params, account, false);
   if (
     rpc.Api.isSimulationSuccess(sim as rpc.Api.SimulateTransactionResponse) &&
