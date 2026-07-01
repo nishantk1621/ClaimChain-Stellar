@@ -41,6 +41,38 @@ Claimants stake a small amount of XLM when filing, which deters spam. The broade
 
 ---
 
+
+## Frontend Integration (hooks/contract.ts)
+
+```typescript
+import {
+  Contract, Networks, TransactionBuilder, rpc, Address, nativeToScVal, scValToNative, xdr
+} from "@stellar/stellar-sdk";
+import { isConnected, getAddress, signTransaction, setAllowed, isAllowed, requestAccess } from "@stellar/freighter-api";
+
+export const CONTRACT_ADDRESS = "CA43I2DUWKVEMKEFKNRNACVVKJYHN6SLJ6B6GACIV5SC3GUC6APWDSXN";
+export const NETWORK_PASSPHRASE = Networks.TESTNET;
+export const RPC_URL = "https://soroban-testnet.stellar.org";
+
+const server = new rpc.Server(RPC_URL);
+
+export async function callContract(method: string, params: xdr.ScVal[] = [], caller: string, sign: boolean = true) {
+  const contract = new Contract(CONTRACT_ADDRESS);
+  const account = await server.getAccount(caller);
+  const tx = new TransactionBuilder(account, { fee: "100", networkPassphrase: NETWORK_PASSPHRASE })
+    .addOperation(contract.call(method, ...params))
+    .setTimeout(30).build();
+  const simulated = await server.simulateTransaction(tx);
+  if (!sign) return simulated;
+  const prepared = rpc.assembleTransaction(tx, simulated).build();
+  const { signedTxXdr } = await signTransaction(prepared.toXDR(), { networkPassphrase: NETWORK_PASSPHRASE });
+  const txToSubmit = TransactionBuilder.fromXDR(signedTxXdr, NETWORK_PASSPHRASE);
+  return await server.sendTransaction(txToSubmit);
+}
+
+// Functions: fileClaim, vote, resolveClaim, getClaim, getVoteStats
+```
+
 ## ✨ Features  
 
 ### Core  
