@@ -92,7 +92,69 @@ export async function checkConnection(): Promise<boolean> {
 // Full file: client/hooks/contract.ts
 ```
 
+## Smart Contract
 
+**Contract Address:** CA43I2DUWKVEMKEFKNRNACVVKJYHN6SLJ6B6GACIV5SC3GUC6APWDSXN  
+**Network:** Stellar Testnet  
+**Live Demo:** https://insurance-claims-syste.vercel.app
+
+### Key Files
+- [lib.rs (Smart Contract)](https://github.com/nishantk1621/ClaimChain-Stellar/blob/main/contract/contracts/contract/src/lib.rs)
+- [Cargo.toml](https://github.com/nishantk1621/ClaimChain-Stellar/blob/main/contract/contracts/contract/Cargo.toml)
+- [Makefile](https://github.com/nishantk1621/ClaimChain-Stellar/blob/main/contract/contracts/contract/Makefile)
+
+### lib.rs (Full Smart Contract)
+```rust
+#![no_std]
+use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String, Vec};
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ClaimStatus { Filed, UnderReview, Approved, Rejected }
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Claim {
+    pub claimant: Address,
+    pub description: String,
+    pub coverage_amount: i128,
+    pub status: ClaimStatus,
+    pub evidence: Vec<String>,
+    pub approvals: u32,
+    pub rejections: u32,
+    pub filed_at: u64,
+    pub voting_started_at: u64,
+}
+
+#[contract]
+pub struct Contract;
+
+#[contractimpl]
+impl Contract {
+    pub fn file_claim(env: Env, claimant: Address, description: String, coverage_amount: i128) -> u64 {
+        claimant.require_auth();
+        // stores claim on-chain, returns claim_id
+    }
+    pub fn submit_evidence(env: Env, claimant: Address, claim_id: u64, evidence: String) {
+        claimant.require_auth();
+        // adds evidence before voting starts
+    }
+    pub fn start_voting(env: Env, caller: Address, claim_id: u64) {
+        caller.require_auth();
+        // moves claim to UnderReview
+    }
+    pub fn vote(env: Env, voter: Address, claim_id: u64, approve: bool) {
+        voter.require_auth();
+        // casts approve/reject vote, prevents double voting
+    }
+    pub fn resolve_claim(env: Env, caller: Address, claim_id: u64) {
+        caller.require_auth();
+        // majority decides Approved or Rejected
+    }
+    pub fn get_claim(env: Env, claim_id: u64) -> Claim { todo!() }
+    pub fn get_vote_stats(env: Env, claim_id: u64) -> VoteStats { todo!() }
+}
+```
 
 ## 🔄 How It Works  
 1. User files a claim with 0.01 XLM stake  
