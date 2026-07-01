@@ -70,6 +70,30 @@ Claimants stake a small amount of XLM when filing, which deters spam. The broade
 
 ---
 
+
+## Wallet Integration (hooks/contract.ts)
+
+```typescript
+import { isConnected, getAddress, signTransaction, setAllowed, isAllowed, requestAccess } from "@stellar/freighter-api";
+
+export async function connectWallet(): Promise<string> {
+  const connResult = await isConnected();
+  if (!connResult.isConnected) throw new Error("Freighter not installed");
+  await setAllowed();
+  await requestAccess();
+  const { address } = await getAddress();
+  return address;
+}
+
+export async function checkConnection(): Promise<boolean> {
+  const result = await isConnected();
+  return result.isConnected;
+}
+// Full file: client/hooks/contract.ts
+```
+
+
+
 ## 🔄 How It Works  
 1. User files a claim with 0.01 XLM stake  
 2. 3-day voting window starts  
